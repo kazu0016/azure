@@ -5,18 +5,15 @@ on:
     branches: [main]
 
 env:
-  # ATUALIZADO COM SEUS DADOS DO PRINT
+  # Dados do seu print do Azure
   ACR_NAME: azureapp.azurecr.io        
-  APP_NAME: azure-app-kazu             # Nome que a imagem terá no ACR
+  APP_NAME: azure-app-kazu             
   RESOURCE_GROUP: azure-devops         
-  AKS_NAME: aks-kazu                   # Nome para o seu futuro cluster
+  AKS_NAME: aks-kazu                   
 
 jobs:
-  # ========== CI: TEST + BUILD + PUSH ==========
-
-
+  # ========== CI: BUILD + PUSH ==========
   build-and-push:
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,14 +36,13 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      # IMPORTANTE: Usando o Token para poder dar PUSH no repo depois
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT_GITHUB }}
 
       - name: Update K8s manifest
         run: |
-          # Esse comando procura 'image:' e troca pela nova imagem com o SHA do commit
+          # Garanta que esta linha abaixo seja uma única linha no seu arquivo
           sed -i "s|image:.*|image: ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}|" k8s/deployment.yaml
       
       - name: Commit changes
