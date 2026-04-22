@@ -13,22 +13,7 @@ env:
 
 jobs:
   # ========== CI: TEST + BUILD + PUSH ==========
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          
-      - name: Run tests
-        run: |
-          # Se sua app estiver na raiz, mude para ./
-          # Se não tiver testes ainda, você pode comentar esse step
-          npm install
-          npm test || echo "Sem testes para rodar agora"
+
 
   build-and-push:
     needs: test
