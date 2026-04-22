@@ -5,12 +5,10 @@ on:
     branches: [main]
 
 env:
-  # Dados do seu print do Azure
-  ACR_NAME: azureapp.azurecr.io        
+  ACR_NAME: azureappkazu.azurecr.io    # <-- NOME NOVO
   APP_NAME: azure-app-kazu             
   RESOURCE_GROUP: azure-devops         
-  AKS_NAME: aks-kazu                   
-
+  AKS_NAME: aks-kazu
 jobs:
   # ========== CI: BUILD + PUSH ==========
   build-and-push:
@@ -26,7 +24,7 @@ jobs:
       - name: Build & Push ACR
         run: |
           az acr build \
-            --registry azureapp \
+            --registry azureappkazu \
             --image ${{ env.APP_NAME }}:${{ github.sha }} \
             --image ${{ env.APP_NAME }}:latest \
             .
