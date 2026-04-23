@@ -1,64 +1,54 @@
-name: CI/CD AKS
+name: CI/CD AKS GitOps
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
 
 env:
-  ACR_NAME: azureappkazu.azurecr.io    # <-- NOME NOVO
-  APP_NAME: azure-app-kazu             
-  RESOURCE_GROUP: azure-devops         
-  AKS_NAME: aks-kazu
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  
+  # ATENÇÃO: Verifique se o seu Secret no GitHub NÃO tem o .azurecr.io
+  # Se tiver, mude aqui para: ACR_NAME: ${{ secrets.ACR_NAME }}
+  ACR_NAME: azureappkazu.azurecr.io 
+  APP_NAME: azure-app-kazu
+
 jobs:
-  # ========== CI: BUILD + PUSH ==========
   build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 1. Autenticar o Docker no seu ACR
       - name: Login to ACR
-        run: |
-          az acr login --name azureappkazu
+        run: az acr login --name azureappkazu
 
-      # 2. Buildar a imagem usando o processador do GitHub
-      - name: Build and Tag Image
+      - name: Build and Push
         run: |
+          # Build usando o SHA do commit como tag
           docker build -t ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:${{ github.sha }} .
-          docker build -t ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:latest .
-        
-      # 3. PUSH (Corrigido para não duplicar o sufixo)
-      - name: Push Image to ACR
-        run: |
           docker push ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
-          docker push ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:latest  
 
-
-  # ========== CD: UPDATE GIT (GitOps) ==========
-  deploy:
+  update-manifest:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_GITHUB }}
+          # Importante para o push funcionar
+          token: ${{ secrets.GITHUB_TOKEN }} 
 
-      - name: Update K8s manifest
+      - name: Update Kustomize Tag
         run: |
-          # Garanta que esta linha abaixo seja uma única linha no seu arquivo
-          sed -i "s|image:.*|image: ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}|" k8s/deployment.yaml
-      
-      - name: Commit changes
+          cd argocd/apps/node-app/overlays/staging
+          # Este comando troca o 'PLACEHOLDER' pelo SHA do commit atual
+          kustomize edit set image node-app=${{ env.ACR_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
+
+      - name: Commit and Push Changes
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add k8s/deployment.yaml
-          git commit -m "deploy: update image to ${{ github.sha }}" || echo "No changes"
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add .
+          git commit -m "deploy: update staging image to ${{ github.sha }} [skip ci]"
           git push
