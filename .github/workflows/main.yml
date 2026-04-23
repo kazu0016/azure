@@ -41,7 +41,7 @@ jobs:
 
       - name: Update Kustomize Tag
         run: |
-          cd argocd/apps/node-app/overlays/staging
+          cd /apps/node-app/overlays/staging
           # Este comando troca o 'PLACEHOLDER' pelo SHA do commit atual
           kustomize edit set image node-app=${{ env.ACR_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
 
