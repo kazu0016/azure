@@ -1,0 +1,21 @@
+
+  apiVersion: apps/v1                                                         
+  kind: Deployment                                                            
+  metadata:                                                                   
+  name: azure-app-kazu                                                        
+  spec:                                                                       
+  replicas: 1                                                                 
+  selector:                                                                   
+  matchLabels:                                                                
+  app: azure-app-kazu                                                         
+  template:                                                                   
+  metadata:                                                                   
+  labels:                                                                     
+  app: azure-app-kazu                                                         
+  spec:                                                                       
+  containers:                                                                 
+  - name: azure-app-kazu                                                      
+  image: azureappkazu.azurecr.io/azure-app-kazu:latest                        
+  ports:                                                                      
+  - containerPort: 80                                                         
+
