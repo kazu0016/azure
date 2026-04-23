@@ -9,6 +9,7 @@ env:
   APP_NAME: azure-app-kazu             
   RESOURCE_GROUP: azure-devops         
   AKS_NAME: aks-kazu
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 jobs:
   # ========== CI: BUILD + PUSH ==========
   build-and-push:
