@@ -34,9 +34,11 @@ jobs:
           docker build -t ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:${{ github.sha }} .
           docker build -t ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:latest .
         
-          # PUSH (O que estava faltando!)
-          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
-          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.APP_NAME }}:latest          
+      # 3. PUSH (Corrigido para não duplicar o sufixo)
+      - name: Push Image to ACR
+        run: |
+          docker push ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
+          docker push ${{ env.ACR_NAME }}/${{ env.APP_NAME }}:latest  
 
 
   # ========== CD: UPDATE GIT (GitOps) ==========
