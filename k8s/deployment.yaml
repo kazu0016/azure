@@ -15,7 +15,7 @@
   spec:                                                                       
   containers:                                                                 
   - name: azure-app-kazu                                                      
-  image: azureappkazu.azurecr.io/azure-app-kazu:28dce9301bbd11a8d9eb1a9854a7095cf54c5323
+  image: azureappkazu.azurecr.io/azure-app-kazu:732ca4dcb9316690d29a73647b37713caca125f9
   ports:                                                                      
   - containerPort: 80                                                         
 
